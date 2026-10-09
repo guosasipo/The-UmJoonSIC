@@ -1,0 +1,162 @@
+name: Build and release
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: umjoonsic-${{ github.event.pull_request.number || github.ref }}
+  queue: max
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.plan.outputs.version }}
+      publish: ${{ steps.plan.outputs.publish }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - id: plan
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const { execFileSync, spawnSync } = require('node:child_process');
+            const git = (...args) => execFileSync('git', args, { encoding: 'utf8' }).trim();
+            const pattern = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+            const parse = value => {
+              if (!pattern.test(value)) throw new Error(`Invalid stable version: ${value}`);
+              const parts = value.split('.').map(Number);
+              if (!parts.every(Number.isSafeInteger)) throw new Error('Version is too large.');
+              return parts;
+            };
+            const compare = (a, b) => a[0] - b[0] || a[1] - b[1] || a[2] - b[2];
+            const base = JSON.parse(fs.readFileSync('package.json', 'utf8')).version;
+            let version = parse(base).join('.');
+            const publish = context.ref === 'refs/heads/main' &&
+              ['push', 'workflow_dispatch'].includes(context.eventName);
+            if (publish) {
+              if (git('rev-parse', 'HEAD') !== context.sha) throw new Error('Checkout does not match this run.');
+              const tags = git('tag', '--list', 'v*').split('\n')
+                .filter(tag => pattern.test(tag.slice(1)))
+                .map(tag => ({ tag, parts: parse(tag.slice(1)) }))
+                .sort((a, b) => compare(b.parts, a.parts));
+              const atHead = new Set(git('tag', '--points-at', 'HEAD').split('\n'));
+              const existing = tags.find(item => atHead.has(item.tag));
+              if (existing) {
+                version = existing.parts.join('.');
+              } else {
+                if (tags.length) {
+                  const ancestry = spawnSync('git', ['merge-base', '--is-ancestor', `${tags[0].tag}^{commit}`, context.sha]);
+                  if (ancestry.status !== 0) throw new Error('A newer or divergent commit is already tagged. Release the latest main instead.');
+                }
+                const parts = tags.length && compare(tags[0].parts, parse(base)) > 0 ? [...tags[0].parts] : parse(base);
+                if (!Number.isSafeInteger(parts[2] + 1)) throw new Error('Patch version is too large.');
+                parts[2]++;
+                version = parts.join('.');
+              }
+            }
+            core.setOutput('version', version);
+            core.setOutput('publish', publish);
+            core.notice(`${publish ? 'Release' : 'Build'} version: ${version}`);
+  build:
+    needs: version
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    env:
+      RELEASE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '22'
+          cache: npm
+      - uses: actions/setup-java@v6.0.1
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: npm ci
+      - name: Set package version for this build
+        shell: bash
+        run: npm version "$RELEASE_VERSION" --no-git-tag-version --ignore-scripts --allow-same-version
+      - run: npm run package
+      - run: npx tsc --noEmit --noUnusedLocals --noUnusedParameters
+      - uses: actions/upload-artifact@v7.0.2
+        if: matrix.os == 'ubuntu-latest'
+        with:
+          name: vsix
+          path: umjoonsic-*.vsix
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
+          overwrite: true
+  release:
+    needs: [version, build]
+    if: needs.version.outputs.publish == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    env:
+      RELEASE_VERSION: ${{ needs.version.outputs.version }}
+    steps:
+      - uses: actions/download-artifact@v8.0.2
+        with:
+          name: vsix
+          path: release
+      - name: Publish VSIX
+        uses: actions/github-script@v9.0.0
+        with:
+          script: |
+            const fs = require('node:fs');
+            const version = process.env.RELEASE_VERSION;
+            if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(version)) throw new Error('Invalid release version.');
+            const tag = `v${version}`;
+            const name = `umjoonsic-${version}.vsix`;
+            const bytes = fs.readFileSync(`release/${name}`);
+            if (!bytes.length) throw new Error('The VSIX is empty.');
+            const repo = context.repo;
+            try {
+              await github.rest.git.getRef({ ...repo, ref: `tags/${tag}` });
+            } catch (error) {
+              if (error.status !== 404) throw error;
+              await github.rest.git.createRef({ ...repo, ref: `refs/tags/${tag}`, sha: context.sha });
+            }
+            const { data: commit } = await github.rest.repos.getCommit({ ...repo, ref: tag });
+            if (commit.sha !== context.sha) throw new Error('The release tag belongs to another commit.');
+            const releases = await github.paginate(github.rest.repos.listReleases, { ...repo, per_page: 100 });
+            let release = releases.find(item => item.tag_name === tag);
+            if (release && !release.draft) {
+              if (!release.assets.some(asset => asset.name === name && asset.state === 'uploaded' && asset.size > 0))
+                throw new Error('The published release is missing its VSIX. Restore it before retrying.');
+              core.notice(`${tag} is already published.`);
+              return;
+            }
+            if (!release) {
+              release = (await github.rest.repos.createRelease({ ...repo, tag_name: tag,
+                target_commitish: context.sha, name: tag, draft: true, generate_release_notes: true })).data;
+            }
+            const previous = release.assets.find(asset => asset.name === name);
+            if (previous) await github.rest.repos.deleteReleaseAsset({ ...repo, asset_id: previous.id });
+            const { data: asset } = await github.rest.repos.uploadReleaseAsset({ ...repo,
+              release_id: release.id, name, data: bytes,
+              headers: { 'content-type': 'application/octet-stream', 'content-length': bytes.length } });
+            if (asset.state !== 'uploaded' || asset.size !== bytes.length) throw new Error('The VSIX upload is incomplete.');
+            const parts = version.split('.').map(Number);
+            const newer = releases.some(item => {
+              if (item.draft || item.prerelease || !/^v\d+\.\d+\.\d+$/.test(item.tag_name)) return false;
+              const other = item.tag_name.slice(1).split('.').map(Number);
+              return (other[0] - parts[0] || other[1] - parts[1] || other[2] - parts[2]) > 0;
+            });
+            const { data: published } = await github.rest.repos.updateRelease({ ...repo,
+              release_id: release.id, draft: false, make_latest: newer ? 'false' : 'true' });
+            await core.summary.addLink(tag, published.html_url).write();

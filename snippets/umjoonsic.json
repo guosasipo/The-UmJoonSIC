@@ -1,0 +1,40 @@
+{
+  "SIC / SIC XE program": {
+    "prefix": "sic-program",
+    "description": "SIC / SIC XE program with an explicit entry point and halt loop",
+    "body": [
+      "${1:PROG}    START 0",
+      "${2:ENTRY}   LDA ${3:ZERO}",
+      "        $0",
+      "HALT    J HALT",
+      "${3:ZERO}    WORD 0",
+      "        END ${2:ENTRY}"
+    ]
+  },
+  "SIC / SIC XE counted loop": {
+    "prefix": "sic-loop",
+    "description": "Initialize X, then increment and compare against a word",
+    "body": [
+      "        LDX ${1:ZERO}",
+      "${2:LOOP}    LDA ${3:VALUE}",
+      "        TIX ${4:COUNT}",
+      "        JLT ${2:LOOP}",
+      "        J ${5:DONE}",
+      "${1:ZERO}    WORD 0",
+      "${3:VALUE}   WORD ${6:1}",
+      "${4:COUNT}   WORD ${7:10}",
+      "${5:DONE}    J ${5:DONE}",
+      "$0"
+    ]
+  },
+  "SIC / SIC XE subroutine": {
+    "prefix": "sic-subroutine",
+    "description": "Callable leaf subroutine; save L before adding nested JSUB calls",
+    "body": [
+      "${1:SUBRTN}  LDA ${2:VALUE}",
+      "        RSUB",
+      "${2:VALUE}   WORD ${3:0}",
+      "$0"
+    ]
+  }
+}
