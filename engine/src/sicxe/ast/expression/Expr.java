@@ -1,0 +1,51 @@
+package sicxe.ast.expression;
+
+import sicxe.asm.*;
+import sicxe.asm.parsing.ExpressionParser;
+import sicxe.ast.Program;
+
+import java.util.Set;
+
+/**
+ * TODO: write a short description
+ *
+ * @author jure
+ */
+public abstract class Expr {
+
+    public final String name;   // name of the token as shown in syntax errors
+    public final Location loc;  // location of the token
+    public final int leftBP;    // left binding precedence
+
+    public Expr(String name, Location loc, int leftBP) {
+        this.name = name;
+        this.loc = loc;
+        this.leftBP = leftBP;
+    }
+
+    public Expr parse(ExpressionParser parser) throws AsmError {
+        throw new AsmError(loc, String.format("%s", this).length(), "unexpected token '%s'", this);
+    }
+
+    public Expr parseLeft(ExpressionParser parser, Expr left) throws AsmError {
+        throw new AsmError(loc, String.format("%s", this).length(), "unexpected token '%s'", this);
+    }
+
+    public abstract Set<String> extractSyms();
+
+    public int countSyms() {
+        Set<String> set = extractSyms();
+        return set == null ? 0 : set.size();
+    }
+
+    /** Coefficient of this control section's relocation base. */
+    public abstract int relocationBalance(Program program) throws AsmError;
+
+    /** Bind '*' to the EQU definition, even if its dependencies resolve later. */
+    public void bindLocation(int address) {}
+
+    public abstract boolean canEval(Program program);
+
+    public abstract int eval(Program program) throws AsmError;
+
+}
