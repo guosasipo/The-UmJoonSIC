@@ -1,0 +1,1086 @@
+{
+  "sic": [
+    {
+      "name": "START",
+      "opcode": null,
+      "format": "De",
+      "operand": "hex address (no 0x prefix)",
+      "description": "Define program name and start address (hex).",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "END",
+      "opcode": null,
+      "format": "De",
+      "operand": "[entry symbol]",
+      "description": "End of program.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RESB",
+      "opcode": null,
+      "format": "Se",
+      "operand": "nonnegative integer",
+      "description": "Reserve n bytes.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RESW",
+      "opcode": null,
+      "format": "Se",
+      "operand": "nonnegative integer",
+      "description": "Reserve n words.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "BYTE",
+      "opcode": null,
+      "format": "Sd",
+      "operand": "C'text' | C\"escaped text\" | X'hex'",
+      "description": "Initialize bytes (C'..' or X'..').",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "WORD",
+      "opcode": null,
+      "format": "Sd",
+      "operand": "integer",
+      "description": "Initialize words. Symbol expressions and comma-separated lists are not supported.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LDA",
+      "opcode": 0,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Load A from memory.",
+      "effect": "A<-(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LDCH",
+      "opcode": 80,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Load byte to A from memory.",
+      "effect": "A.1<-(m)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LDL",
+      "opcode": 8,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Load L from memory.",
+      "effect": "L<-(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LDX",
+      "opcode": 4,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Load X from memory.",
+      "effect": "X<-(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "STA",
+      "opcode": 12,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Store A to memory.",
+      "effect": "m..m+2<-(A)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "STCH",
+      "opcode": 84,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Store byte from A to memory.",
+      "effect": "m<-(A.1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "STL",
+      "opcode": 20,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Store L to memory.",
+      "effect": "m..m+2<-(L)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "STX",
+      "opcode": 16,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Store X to memory.",
+      "effect": "m..m+2<-(X)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "STSW",
+      "opcode": 232,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Store status word.",
+      "effect": "m..m+2<-(SW)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "ADD",
+      "opcode": 24,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Add to accumulator.",
+      "effect": "A<-(A)+(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "SUB",
+      "opcode": 28,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Subtract from accumulator.",
+      "effect": "A<-(A)-(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "MUL",
+      "opcode": 32,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Multiply accumulator.",
+      "effect": "A<-(A)*(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "DIV",
+      "opcode": 36,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Divide accumulator.",
+      "effect": "A<-(A)/(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "COMP",
+      "opcode": 40,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Compare accumulator.",
+      "effect": "A<-(A):(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "AND",
+      "opcode": 64,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Bitwise AND accumulator.",
+      "effect": "A<-(A)&(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "OR",
+      "opcode": 68,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Bitwise OR accumulator.",
+      "effect": "A<-(A)|(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "TIX",
+      "opcode": 44,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Increment X and compare.",
+      "effect": "X<-(X)+1;(X):(m..m+2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "J",
+      "opcode": 60,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Unconditional jump.",
+      "effect": "PC<-m",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "JEQ",
+      "opcode": 48,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Jump if equal.",
+      "effect": "PC<-m if CC is =",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "JGT",
+      "opcode": 52,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Jump if greater.",
+      "effect": "PC<-m if CC is >",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "JLT",
+      "opcode": 56,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Jump if lower.",
+      "effect": "PC<-m if CC is <",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "JSUB",
+      "opcode": 72,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Jump to subroutine.",
+      "effect": "L<-(PC);PC<-m",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RSUB",
+      "opcode": 76,
+      "format": "F3",
+      "operand": "",
+      "description": "Return from subroutine.",
+      "effect": "PC<-(L)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RD",
+      "opcode": 216,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Read from device.",
+      "effect": "A.1<-readdev(m)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "WD",
+      "opcode": 220,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Write to device.",
+      "effect": "writedev(m),A.1",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "TD",
+      "opcode": 224,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | =C'text' | =X'hex'",
+      "description": "Test device.",
+      "effect": "testdev(m)",
+      "extended": false,
+      "implemented": true
+    }
+  ],
+  "sicxe": [
+    {
+      "name": "START",
+      "opcode": null,
+      "format": "De",
+      "operand": "expression (decimal by default; 0x for hex)",
+      "description": "Define program name and start address.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "END",
+      "opcode": null,
+      "format": "De",
+      "operand": "entry expression (required)",
+      "description": "End of program.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "CSECT",
+      "opcode": null,
+      "format": "D",
+      "operand": "",
+      "description": "Declare section.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "USE",
+      "opcode": null,
+      "format": "Ds0",
+      "operand": "[block symbol]",
+      "description": "Block entry.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "EXTREF",
+      "opcode": null,
+      "format": "Ds_",
+      "operand": "symbol[,symbol...] (up to 6 characters per symbol)",
+      "description": "Import symbols",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "EXTDEF",
+      "opcode": null,
+      "format": "Ds_",
+      "operand": "symbol[,symbol...] (up to 6 characters per symbol)",
+      "description": "Export symbols",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "ORG",
+      "opcode": null,
+      "format": "De0",
+      "operand": "[expression]",
+      "description": "Set location counter.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LTORG",
+      "opcode": null,
+      "format": "D",
+      "operand": "",
+      "description": "Flush literals.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "BASE",
+      "opcode": null,
+      "format": "De",
+      "operand": "expression",
+      "description": "Set base register.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "NOBASE",
+      "opcode": null,
+      "format": "D",
+      "operand": "",
+      "description": "Unset base register.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "EQU",
+      "opcode": null,
+      "format": "De",
+      "operand": "expression",
+      "description": "Equate symbol to expression.",
+      "effect": "directive",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RESB",
+      "opcode": null,
+      "format": "Se",
+      "operand": "nonnegative expression",
+      "description": "Reserve n bytes.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RESW",
+      "opcode": null,
+      "format": "Se",
+      "operand": "nonnegative expression",
+      "description": "Reserve n words.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RESF",
+      "opcode": null,
+      "format": "Se",
+      "operand": "nonnegative expression",
+      "description": "Reserve n floats.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "BYTE",
+      "opcode": null,
+      "format": "Sd",
+      "operand": "integer | C'text' | C\"escaped text\" | X'hex' | F'number'",
+      "description": "Initialize bytes.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "WORD",
+      "opcode": null,
+      "format": "Sd",
+      "operand": "integer | C'text' | C\"escaped text\" | X'hex' | F'number'",
+      "description": "Initialize words. Symbol expressions and comma-separated lists are not supported.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "FLOT",
+      "opcode": null,
+      "format": "Sd",
+      "operand": "integer | C'text' | C\"escaped text\" | X'hex' | F'number'",
+      "description": "Initialize floats.",
+      "effect": "storage",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "FIX",
+      "opcode": 196,
+      "format": "F1",
+      "operand": "",
+      "description": "Convert to fixed point number.",
+      "effect": "A<-int(F)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "FLOAT",
+      "opcode": 192,
+      "format": "F1",
+      "operand": "",
+      "description": "Convert to floating point number.",
+      "effect": "F<-float(A)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "NORM",
+      "opcode": 200,
+      "format": "F1",
+      "operand": "",
+      "description": "Normalize.",
+      "effect": "F<-norm(F)",
+      "extended": false,
+      "implemented": false
+    },
+    {
+      "name": "SIO",
+      "opcode": 240,
+      "format": "F1",
+      "operand": "",
+      "description": "Start program S of I/O channel A.",
+      "effect": "Start S, A",
+      "extended": false,
+      "implemented": false
+    },
+    {
+      "name": "HIO",
+      "opcode": 244,
+      "format": "F1",
+      "operand": "",
+      "description": "Halt IO channel (A).",
+      "effect": "Halt A",
+      "extended": false,
+      "implemented": false
+    },
+    {
+      "name": "TIO",
+      "opcode": 248,
+      "format": "F1",
+      "operand": "",
+      "description": "Test IO channel (A).",
+      "effect": "Test A",
+      "extended": false,
+      "implemented": false
+    },
+    {
+      "name": "SVC",
+      "opcode": 176,
+      "format": "F2n",
+      "operand": "n (0..15)",
+      "description": "Generate SVC interrupt n.",
+      "effect": "Interrupt n",
+      "extended": false,
+      "implemented": false
+    },
+    {
+      "name": "CLEAR",
+      "opcode": 180,
+      "format": "F2r",
+      "operand": "r (A, X, L, B, S, T, F)",
+      "description": "Clear register. PC and SW are not accepted by this assembler.",
+      "effect": "r<-0",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "TIXR",
+      "opcode": 184,
+      "format": "F2r",
+      "operand": "r (A, X, L, B, S, T, F)",
+      "description": "Increment and compare index register. PC and SW are not accepted by this assembler.",
+      "effect": "X<-(X)+1;(X):(r)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "SHIFTL",
+      "opcode": 164,
+      "format": "F2rn",
+      "operand": "r,n (r: A, X, L, B, S, T, F; n: 1..16)",
+      "description": "Shift left n bits PC and SW are not accepted by this assembler.",
+      "effect": "(r)<-(r)<<n",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "SHIFTR",
+      "opcode": 168,
+      "format": "F2rn",
+      "operand": "r,n (r: A, X, L, B, S, T, F; n: 1..16)",
+      "description": "Shift right n bits PC and SW are not accepted by this assembler.",
+      "effect": "(r)<-(r)>>n",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "ADDR",
+      "opcode": 144,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Add registers PC and SW are not accepted by this assembler.",
+      "effect": "r2<-(r2)+(r1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "SUBR",
+      "opcode": 148,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Subtract registers PC and SW are not accepted by this assembler.",
+      "effect": "r2<-(r2)-(r1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "MULR",
+      "opcode": 152,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Multiply registers PC and SW are not accepted by this assembler.",
+      "effect": "r2<-(r2)*(r1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "DIVR",
+      "opcode": 156,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Divide registers PC and SW are not accepted by this assembler.",
+      "effect": "r2<-(r2)/(r1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "COMPR",
+      "opcode": 160,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Compare registers PC and SW are not accepted by this assembler.",
+      "effect": "(r1):(r2)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RMO",
+      "opcode": 172,
+      "format": "F2rr",
+      "operand": "r1,r2 (A, X, L, B, S, T, F)",
+      "description": "Move register PC and SW are not accepted by this assembler.",
+      "effect": "(r2)<-(r1)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "LDA",
+      "opcode": 0,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register A from address m",
+      "effect": "A<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDCH",
+      "opcode": 80,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load byte to register A from address m",
+      "effect": "A.1<-(m)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDB",
+      "opcode": 104,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register B from address m",
+      "effect": "B<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDF",
+      "opcode": 112,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register F from address m",
+      "effect": "F<-(m..m+5)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDL",
+      "opcode": 8,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register L from address m",
+      "effect": "L<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDS",
+      "opcode": 108,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register S from address m",
+      "effect": "S<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDT",
+      "opcode": 116,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register T from address m",
+      "effect": "T<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LDX",
+      "opcode": 4,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load register X from address m",
+      "effect": "X<-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "LPS",
+      "opcode": 208,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Load processor status from address m",
+      "effect": "PS->(m..2)",
+      "extended": true,
+      "implemented": false
+    },
+    {
+      "name": "STA",
+      "opcode": 12,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register A to address m",
+      "effect": "m..m+2<-(A)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STCH",
+      "opcode": 84,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store byte from register A to address m",
+      "effect": "m<-(A.1)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STB",
+      "opcode": 120,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register B to address m",
+      "effect": "m..m+2<-(B)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STF",
+      "opcode": 128,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register F to address m",
+      "effect": "m..m+5<-(F)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STL",
+      "opcode": 20,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register L to address m",
+      "effect": "m..m+2<-(L)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STS",
+      "opcode": 124,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register S to address m",
+      "effect": "m..m+2<-(S)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STT",
+      "opcode": 132,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register T to address m",
+      "effect": "m..m+2<-(T)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STX",
+      "opcode": 16,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store register X to address m",
+      "effect": "m..m+2<-(X)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "STI",
+      "opcode": 212,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Set interval timer",
+      "effect": "timer<-(m..m+2)",
+      "extended": true,
+      "implemented": false
+    },
+    {
+      "name": "STSW",
+      "opcode": 232,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Store processor status word to address m",
+      "effect": "m..m+2<-(SW)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "ADD",
+      "opcode": 24,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Add to accumulator",
+      "effect": "A<-(A)+(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "SUB",
+      "opcode": 28,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Subtract from accumulator",
+      "effect": "A<-(A)-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "MUL",
+      "opcode": 32,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Multiply with accumultator",
+      "effect": "A<-(A)*(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "DIV",
+      "opcode": 36,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Divide accumulator",
+      "effect": "A<-(A)/(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "COMP",
+      "opcode": 40,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Compare accumulator",
+      "effect": "A<-(A):(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "AND",
+      "opcode": 64,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Bitwise and accumulator",
+      "effect": "A<-(A)&(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "OR",
+      "opcode": 68,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Bitwise or accumulator",
+      "effect": "A<-(A)|(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "TIX",
+      "opcode": 44,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Increment and compare index register",
+      "effect": "X<-(X)+1;(X):(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "ADDF",
+      "opcode": 88,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Floating point addition",
+      "effect": "F<-(F)+(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "SUBF",
+      "opcode": 92,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Floating point subtraction",
+      "effect": "F<-(F)-(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "MULF",
+      "opcode": 96,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Floating point multiplication",
+      "effect": "F<-(F)*(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "DIVF",
+      "opcode": 100,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Floating point division",
+      "effect": "F<-(F)/(m..m+2)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "COMPF",
+      "opcode": 136,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Floating point comparison",
+      "effect": "F<-(F):(m..m+5)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "J",
+      "opcode": 60,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Unconditional jump",
+      "effect": "PC<-m",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "JEQ",
+      "opcode": 48,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Jump if equal",
+      "effect": "PC<-m if CC is =",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "JGT",
+      "opcode": 52,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Jump if greater than",
+      "effect": "PC<-m if CC is >",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "JLT",
+      "opcode": 56,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Jump if lower than",
+      "effect": "PC<-m if CC is <",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "JSUB",
+      "opcode": 72,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Jump to subrutine",
+      "effect": "L<-(PC);PC<-m",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "RSUB",
+      "opcode": 76,
+      "format": "F3",
+      "operand": "",
+      "description": "Return from subroutine.",
+      "effect": "PC<-(L)",
+      "extended": false,
+      "implemented": true
+    },
+    {
+      "name": "RD",
+      "opcode": 216,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Read from device",
+      "effect": "A.1<-readdev (m)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "WD",
+      "opcode": 220,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Write to device",
+      "effect": "writedev(m),A.1",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "TD",
+      "opcode": 224,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Test device",
+      "effect": "testdev(m)",
+      "extended": true,
+      "implemented": true
+    },
+    {
+      "name": "SSK",
+      "opcode": 236,
+      "format": "F3m",
+      "operand": "(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal",
+      "description": "Protection key for address",
+      "effect": "m<-(A)",
+      "extended": true,
+      "implemented": false
+    }
+  ]
+}

@@ -1,0 +1,122 @@
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+// These generated files are committed: the extension needs neither Java nor this checkout.
+const revision = '35bba80be645bc07170ba5adcfcc6bcb51a3ca4d';
+const root = fileURLToPath(new URL('../', import.meta.url));
+const upstream = process.argv[2];
+assert(upstream && upstream !== '--check', 'Usage: node scripts/generate-language.mjs <UmJoonSIC checkout> [--check]');
+const read = path => execFileSync('git', ['-C', upstream, 'show', `${revision}:${path}`], { encoding: 'utf8' });
+const source = (mode, path) => read(`simulator/SicTools/src/${mode}/${path}`);
+
+function extract(mode) {
+  const opcodes = Object.fromEntries([...source(mode, 'common/Opcode.java')
+    .matchAll(/public static final int (\w+)\s*=\s*(0x[\dA-Fa-f]+|\d+);/g)]
+    .map(([, name, value]) => [name, Number(value)]));
+  const hints = Object.fromEntries([...source(mode, 'common/Format.java')
+    .matchAll(/case (\w+):\s*return ("(?:\\.|[^"\\])*");/g)]
+    .map(([, name, value]) => [name, JSON.parse(value)]));
+  const stubs = new Set([...source(mode, 'sim/vm/Machine.java')
+    .matchAll(/case Opcode\.(\w+):\s*notImplemented\(/g)].map(match => match[1]));
+  const table = source(mode, 'common/Mnemonics.java').split('public void initMnemonics()')[1];
+  assert(table, 'Missing mnemonic table');
+  const entries = [...table.matchAll(/put(34)?\("([A-Z]+)",\s*Opcode\.([A-Z]+),\s*(?:Format\.(\w+),\s*)?("(?:\\.|[^"\\])*"),\s*("(?:\\.|[^"\\])*")\);/g)]
+    .map(([, pair, name, opcodeName, format = 'F3m', effect, description]) => {
+      assert.equal(name, opcodeName);
+      assert.equal(typeof opcodes[opcodeName], 'number', `Missing opcode ${name}`);
+      assert.equal(typeof hints[format], 'string', `Missing format ${format}`);
+      const entry = {
+        name, opcode: format.startsWith('F') ? opcodes[opcodeName] : null, format,
+        operand: hints[format], description: JSON.parse(description), effect: JSON.parse(effect).trim(),
+        extended: mode === 'sicxe' && Boolean(pair), implemented: !stubs.has(name),
+      };
+      // Format.hint() contains inherited suggestions that the pinned operand parser rejects.
+      if (format === 'F3m') entry.operand = mode === 'sic'
+        ? '(address|symbol)[,X] | =C\'text\' | =X\'hex\''
+        : '(address|symbol)[,X] | #(number|symbol) | @(address|symbol) | =literal';
+      if (format === 'F2n') entry.operand = 'n (0..15)';
+      if (format === 'F2r') entry.operand = 'r (A, X, L, B, S, T, F)';
+      if (format === 'F2rn') entry.operand = 'r,n (r: A, X, L, B, S, T, F; n: 1..16)';
+      if (format === 'F2rr') entry.operand = 'r1,r2 (A, X, L, B, S, T, F)';
+      if (format.startsWith('F2') && format !== 'F2n')
+        entry.description += ' PC and SW are not accepted by this assembler.';
+      if (name === 'START') entry.operand = mode === 'sic' ? 'hex address (no 0x prefix)' : 'expression (decimal by default; 0x for hex)';
+      if (name === 'END') entry.operand = mode === 'sic' ? '[entry symbol]' : 'entry expression (required)';
+      if (format === 'Se') entry.operand = mode === 'sic' ? 'nonnegative integer' : 'nonnegative expression';
+      if (format === 'De' && !['START', 'END'].includes(name)) entry.operand = 'expression';
+      if (format === 'De0') entry.operand = '[expression]';
+      if (format === 'Ds0') entry.operand = '[block symbol]';
+      if (format === 'Ds_') entry.operand = 'symbol[,symbol...] (up to 6 characters per symbol)';
+      if (format === 'Sd') entry.operand = mode === 'sic'
+        ? (name === 'BYTE' ? 'C\'text\' | C"escaped text" | X\'hex\'' : 'integer')
+        : 'integer | C\'text\' | C"escaped text" | X\'hex\' | F\'number\'';
+      if (name === 'WORD') entry.description += ' Symbol expressions and comma-separated lists are not supported.';
+      return entry;
+    });
+  assert.equal(entries.length, mode === 'sic' ? 32 : 76);
+  assert.equal(new Set(entries.map(entry => entry.name)).size, entries.length);
+  assert.equal(entries.filter(entry => entry.opcode !== null).length, mode === 'sic' ? 26 : 59);
+  assert.equal(entries.filter(entry => entry.extended).length, mode === 'sic' ? 0 : 41);
+  assert.equal(stubs.size, mode === 'sic' ? 0 : 8);
+  return entries;
+}
+
+const metadata = { sic: extract('sic'), sicxe: extract('sicxe') };
+const all = [...metadata.sic, ...metadata.sicxe];
+const names = predicate => [...new Set(all.filter(predicate).map(entry => entry.name))].sort().join('|');
+const symbol = '[\\p{L}_][\\p{L}\\p{N}_]*';
+const prefix = `^(?:(${symbol})[ \\t]+|[ \\t]+)`;
+const boundary = '(?=[ \\t.]|$)';
+const grammar = {
+  $schema: 'https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json',
+  name: 'UmJoonSIC', scopeName: 'source.umjoonsic',
+  comment: `Generated by scripts/generate-language.mjs from CAPS-DGU/UmJoonSIC@${revision}; see THIRD_PARTY_NOTICES.md.`,
+  patterns: [
+    // Strings start before an embedded dot, so dots inside data never become comments.
+    { name: 'string.quoted.single.umjoonsic', begin: "C'", end: "'" },
+    { name: 'string.quoted.double.umjoonsic', begin: 'C"', end: '"|$', patterns: [{ name: 'constant.character.escape.umjoonsic', match: '\\\\.' }] },
+    // Quote pairing needs string tokens; the contents retain their numeric colors.
+    { name: 'string.quoted.single.hex.umjoonsic', contentName: 'constant.numeric.hex.umjoonsic', begin: "X'", end: "'|$" },
+    { name: 'string.quoted.single.float.umjoonsic', contentName: 'constant.numeric.float.umjoonsic', begin: "F'", end: "'|$" },
+    {
+      match: `${prefix}(FLOT)[ \\t]+(-?\\d+\\.\\d*)${boundary}`,
+      captures: { 1: { name: 'entity.name.label.umjoonsic' }, 2: { name: 'keyword.other.directive.umjoonsic' }, 3: { name: 'constant.numeric.float.umjoonsic' } },
+    },
+    {
+      match: `${prefix}(\\+?(?:${names(entry => entry.extended)}))[ \\t]+(=)(FLOT)[ \\t]*(-?\\d+\\.\\d*)${boundary}`,
+      captures: { 1: { name: 'entity.name.label.umjoonsic' }, 2: { name: 'keyword.control.instruction.umjoonsic' }, 3: { name: 'keyword.operator.addressing.umjoonsic' }, 4: { name: 'keyword.other.directive.umjoonsic' }, 5: { name: 'constant.numeric.float.umjoonsic' } },
+    },
+    { name: 'comment.line.period.umjoonsic', match: '\\..*$' },
+    {
+      match: `${prefix}(\\+)(${names(entry => entry.extended)})${boundary}`,
+      captures: { 1: { name: 'entity.name.label.umjoonsic' }, 2: { name: 'keyword.operator.extended.umjoonsic' }, 3: { name: 'keyword.control.instruction.umjoonsic' } },
+    },
+    {
+      match: `${prefix}(${names(entry => entry.opcode !== null)})${boundary}`,
+      captures: { 1: { name: 'entity.name.label.umjoonsic' }, 2: { name: 'keyword.control.instruction.umjoonsic' } },
+    },
+    {
+      match: `${prefix}(${names(entry => entry.opcode === null)})${boundary}`,
+      captures: { 1: { name: 'entity.name.label.umjoonsic' }, 2: { name: 'keyword.other.directive.umjoonsic' } },
+    },
+    { name: 'entity.name.label.umjoonsic', match: `^${symbol}(?=[ \\t]|$)` },
+    { name: 'constant.numeric.umjoonsic', match: '\\b(?:0x[\\dA-Fa-f]+|0b[01]+|0o[0-7]+|[0-9]+)\\b' },
+    { name: 'keyword.operator.addressing.umjoonsic', match: '[#@=]' },
+    { name: 'keyword.operator.arithmetic.umjoonsic', match: '[+*/%\\-]' },
+    { name: 'punctuation.separator.comma.umjoonsic', match: ',' },
+  ],
+};
+
+for (const [path, value] of Object.entries({ 'src/instructions.json': metadata, 'syntaxes/umjoonsic.tmLanguage.json': grammar })) {
+  const content = `${JSON.stringify(value, null, 2)}\n`;
+  const target = resolve(root, path);
+  if (process.argv.includes('--check')) assert.equal(readFileSync(target, 'utf8'), content, `${path} needs regeneration`);
+  else {
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, content);
+  }
+}
+console.log(`${process.argv.includes('--check') ? 'Checked' : 'Generated'} metadata and grammar: 32 SIC / 76 SIC/XE entries.`);
