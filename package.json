@@ -1,0 +1,459 @@
+{
+  "name": "umjoonsic",
+  "displayName": "UmJoonSIC for VS Code",
+  "description": "%extension.description%",
+  "version": "1.7.6",
+  "publisher": "umjoonsic",
+  "license": "BSD-2-Clause",
+  "engines": {
+    "vscode": "^1.106.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers"
+  ],
+  "keywords": [
+    "sic",
+    "sicxe",
+    "assembly",
+    "umjoonsic"
+  ],
+  "main": "./out/extension.js",
+  "extensionKind": [
+    "workspace"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "%capabilities.untrustedWorkspaces%"
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "%capabilities.virtualWorkspaces%"
+    }
+  },
+  "contributes": {
+    "languages": [
+      {
+        "id": "umjoonsic",
+        "aliases": [
+          "SIC / SIC XE (UmJoonSIC)",
+          "umjoonsic"
+        ],
+        "extensions": [
+          ".sic.asm"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "umjoonsic",
+        "scopeName": "source.umjoonsic",
+        "path": "./syntaxes/umjoonsic.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "umjoonsic",
+        "path": "./snippets/umjoonsic.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "umjoonsic.selectMode",
+        "title": "%command.selectMode%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.assemble",
+        "title": "%command.assemble%",
+        "category": "UmJoonSIC",
+        "icon": "$(tools)"
+      },
+      {
+        "command": "umjoonsic.debug",
+        "title": "%command.debug%",
+        "category": "UmJoonSIC",
+        "icon": "$(debug-alt)"
+      },
+      {
+        "command": "umjoonsic.run",
+        "title": "%command.run%",
+        "category": "UmJoonSIC",
+        "icon": "$(play)"
+      },
+      {
+        "command": "umjoonsic.checkSyntax",
+        "title": "%command.checkSyntax%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.showListing",
+        "title": "%command.showListing%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.showMemory",
+        "title": "%command.showMemory%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.setDelay",
+        "title": "%command.setDelay%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.configureFiles",
+        "title": "%command.configureFiles%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.reorderFiles",
+        "title": "%command.reorderFiles%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.importProject",
+        "title": "%command.importProject%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.selectJava",
+        "title": "%command.selectJava%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.javaInstallGuide",
+        "title": "%command.javaInstallGuide%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.chooseMain",
+        "title": "%command.chooseMain%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.configureDevices",
+        "title": "%command.configureDevices%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.newProject",
+        "title": "%command.newProject%",
+        "category": "UmJoonSIC",
+        "icon": "$(new-folder)"
+      },
+      {
+        "command": "umjoonsic.showDebugger",
+        "title": "%command.showDebugger%",
+        "category": "UmJoonSIC",
+        "icon": "$(layout-sidebar-right)"
+      },
+      {
+        "command": "umjoonsic.revealInListing",
+        "title": "%command.revealInListing%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.revealMemory",
+        "title": "%command.revealMemory%",
+        "category": "UmJoonSIC"
+      },
+      {
+        "command": "umjoonsic.revealPC",
+        "title": "%command.revealPC%",
+        "category": "UmJoonSIC"
+      }
+    ],
+    "configuration": {
+      "title": "UmJoonSIC",
+      "properties": {
+        "umjoonsic.mode": {
+          "type": "string",
+          "enum": [
+            "sic",
+            "sicxe"
+          ],
+          "enumDescriptions": [
+            "%config.mode.enum.0%",
+            "%config.mode.enum.1%"
+          ],
+          "default": "sic",
+          "scope": "resource",
+          "description": "%config.mode%"
+        },
+        "umjoonsic.javaPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "description": "%config.javaPath%"
+        },
+        "umjoonsic.stepDelayMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 60000,
+          "default": 250,
+          "scope": "resource",
+          "description": "%config.stepDelayMs%"
+        },
+        "umjoonsic.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "%config.diagnostics%"
+        },
+        "umjoonsic.autoInstallJava": {
+          "type": "boolean",
+          "default": true,
+          "scope": "machine",
+          "description": "%config.autoInstallJava%"
+        },
+        "umjoonsic.autoAddNewAsmFiles": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "%config.autoAddNewAsmFiles%"
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[umjoonsic]": {
+        "editor.insertSpaces": true,
+        "editor.tabSize": 8,
+        "editor.wordBasedSuggestions": "off",
+        "editor.quickSuggestions": {
+          "other": true,
+          "comments": false,
+          "strings": false
+        },
+        "editor.formatOnType": true,
+        "editor.formatOnPaste": true
+      }
+    },
+    "breakpoints": [
+      {
+        "language": "umjoonsic"
+      }
+    ],
+    "menus": {
+      "editor/title": [
+        {
+          "command": "umjoonsic.assemble",
+          "when": "editorLangId == umjoonsic",
+          "group": "navigation"
+        },
+        {
+          "command": "umjoonsic.debug",
+          "when": "editorLangId == umjoonsic",
+          "group": "navigation"
+        },
+        {
+          "command": "umjoonsic.showDebugger",
+          "when": "editorLangId == umjoonsic || resourceExtname =~ /^\\.sic$/i",
+          "group": "navigation"
+        },
+        {
+          "command": "umjoonsic.debug",
+          "when": "resourceExtname =~ /^\\.sic$/i",
+          "group": "navigation"
+        },
+        {
+          "command": "umjoonsic.run",
+          "when": "resourceExtname =~ /^\\.sic$/i",
+          "group": "navigation"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "umjoonsic.newProject",
+          "when": "explorerResourceIsFolder && resourcePath not in umjoonsic.projectRootPaths",
+          "group": "umjoonsic@1"
+        },
+        {
+          "command": "umjoonsic.configureFiles",
+          "when": "resourceExtname =~ /^\\.asm$/i",
+          "group": "umjoonsic"
+        },
+        {
+          "command": "umjoonsic.importProject",
+          "when": "resourceFilename =~ /^project\\.sic$/i",
+          "group": "umjoonsic"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "umjoonsic.revealInListing",
+          "when": "editorLangId == umjoonsic",
+          "group": "navigation@9"
+        }
+      ],
+      "debug/variables/context": [
+        {
+          "command": "umjoonsic.revealMemory",
+          "when": "debugType == umjoonsic && canViewMemory",
+          "group": "navigation"
+        }
+      ],
+      "debug/watch/context": [
+        {
+          "command": "umjoonsic.revealMemory",
+          "when": "debugType == umjoonsic && canViewMemory",
+          "group": "navigation"
+        }
+      ]
+    },
+    "debuggers": [
+      {
+        "type": "umjoonsic",
+        "label": "UmJoonSIC",
+        "languages": [
+          "umjoonsic"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "properties": {
+              "programs": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "%launch.programs%"
+              },
+              "mode": {
+                "type": "string",
+                "enum": [
+                  "sic",
+                  "sicxe"
+                ],
+                "description": "%launch.mode%"
+              },
+              "mainSection": {
+                "type": "string",
+                "description": "%launch.mainSection%"
+              },
+              "fileDevices": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "index",
+                    "filename"
+                  ],
+                  "properties": {
+                    "index": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 255
+                    },
+                    "filename": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "description": "%launch.fileDevices%"
+              },
+              "stepDelayMs": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 60000,
+                "description": "%launch.stepDelayMs%"
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "default": true
+              },
+              "importedProject": {
+                "type": "string",
+                "description": "%launch.importedProject%"
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "umjoonsic",
+            "request": "launch",
+            "name": "%launch.initial.name%",
+            "programs": [
+              "${file}"
+            ],
+            "stopOnEntry": true
+          }
+        ]
+      }
+    ],
+    "viewsContainers": {
+      "secondarySidebar": [
+        {
+          "id": "umjoonsic-debugger",
+          "title": "UmJoonSIC",
+          "icon": "media/umjoonsic.svg"
+        }
+      ]
+    },
+    "views": {
+      "umjoonsic-debugger": [
+        {
+          "id": "umjoonsic.debugger",
+          "name": "%view.debugger.name%",
+          "type": "webview",
+          "contextualTitle": "UmJoonSIC"
+        }
+      ]
+    },
+    "customEditors": [
+      {
+        "viewType": "umjoonsic.project",
+        "displayName": "%editor.project.displayName%",
+        "selector": [
+          {
+            "filenamePattern": "*.[sS][iI][cC]"
+          }
+        ],
+        "priority": "default"
+      }
+    ],
+    "keybindings": [
+      {
+        "key": "tab",
+        "command": "umjoonsic.nextField",
+        "when": "editorTextFocus && editorLangId == umjoonsic && !editorReadonly && !editorHasSelection && !editorHasMultipleSelections && !inSnippetMode && !suggestWidgetVisible && !inlineSuggestionVisible && !editorTabMovesFocus"
+      },
+      {
+        "key": "backspace",
+        "command": "umjoonsic.previousField",
+        "when": "editorTextFocus && editorLangId == umjoonsic && !editorReadonly && !editorHasSelection && !editorHasMultipleSelections && !inSnippetMode && !suggestWidgetVisible && !inlineSuggestionVisible"
+      },
+      {
+        "key": "shift+tab",
+        "command": "umjoonsic.previousColumn",
+        "when": "editorTextFocus && editorLangId == umjoonsic && !editorReadonly && !editorHasSelection && !editorHasMultipleSelections && !inSnippetMode && !suggestWidgetVisible && !inlineSuggestionVisible && !editorTabMovesFocus"
+      }
+    ]
+  },
+  "scripts": {
+    "compile": "node -e \"require('node:fs').rmSync('out', { recursive: true, force: true })\" && tsc -p .",
+    "vscode:prepublish": "npm run build",
+    "generate:language": "node scripts/generate-language.mjs",
+    "package": "vsce package --allow-missing-repository",
+    "build:engine": "node scripts/build-engine.mjs",
+    "build": "npm run build:engine && npm run compile"
+  },
+  "devDependencies": {
+    "@types/node": "22.19.0",
+    "@types/vscode": "1.95.0",
+    "@vscode/vsce": "4.0.0",
+    "typescript": "5.9.3"
+  },
+  "dependencies": {
+    "@vscode/debugadapter": "1.68.0",
+    "@vscode/debugprotocol": "1.68.0"
+  },
+  "activationEvents": [
+    "onStartupFinished",
+    "workspaceContains:*.sic",
+    "onDebugResolve:umjoonsic"
+  ],
+  "l10n": "./l10n"
+}

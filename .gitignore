@@ -1,0 +1,9 @@
+node_modules/
+out/
+*.vsix
+graphify-out/
+.DS_Store
+.vscode/
+engine/.cache/
+engine/.build/
+engine/dist/
