@@ -6,7 +6,7 @@ SIC와 SIC/XE 실습 코드를 VS Code에서 편집하고 어셈블·링크·디
 
 VS Code **1.106 이상**을 지원합니다. 실행·어셈블에 필요한 **Java 17 이상**은 기존 설치를 찾아 사용하며, 없으면 공식 Temurin JRE를 자동으로 준비합니다. 자동완성과 문법 강조는 Java 없이도 사용할 수 있습니다.
 
-Extensions 메뉴에서 **Install from VSIX…**를 선택하고 `umjoonsic-1.7.6.vsix`를 설치합니다. 탐색기에서 실습 폴더를 우클릭해 **UmJoonSIC: SIC 프로젝트 만들기**로 시작합니다. 이전 버전을 사용 중이었다면 업데이트 후 **Developer: Reload Window**를 한 번 실행합니다. Marketplace에는 아직 배포하지 않았습니다.
+[GitHub Releases](https://github.com/guosasipo/The-UmJoonSIC/releases/latest)에서 최신 `umjoonsic-*.vsix`를 내려받아 Extensions 메뉴의 **Install from VSIX…**로 설치합니다. 탐색기에서 실습 폴더를 우클릭해 **UmJoonSIC: SIC 프로젝트 만들기**로 시작합니다. 이전 버전을 사용 중이었다면 업데이트 후 **Developer: Reload Window**를 한 번 실행합니다. Marketplace에는 아직 배포하지 않았습니다.
 
 Java는 `JAVA_HOME`, `PATH`와 macOS Homebrew 설치 경로에서 찾습니다. 없으면 확장 전용 저장소에 Temurin 17 JRE를 내려받아 SHA-256을 검증한 뒤 설치합니다. 준비된 JRE는 오프라인에서도 재사용하며 시스템의 `PATH`나 `JAVA_HOME`은 바꾸지 않습니다. 자동 설치는 신뢰된 작업 폴더에서만 동작하고 `umjoonsic.autoInstallJava`로 끌 수 있습니다.
 
@@ -137,6 +137,16 @@ npm run package
 ```
 
 패키징은 엔진과 TypeScript를 함께 빌드합니다. JDK 경로는 `UMJOONSIC_JAVAC`으로 지정할 수 있습니다. CI는 세 운영체제에서 패키징·TypeScript 검사를 수행합니다.
+
+## 자동 빌드와 릴리스
+
+`develop`에서 작업하고 `main`으로 병합합니다. 두 브랜치의 push와 대상 PR에서 Linux·Windows·macOS 빌드를 확인하며, Actions 실행의 `vsix` 아티팩트에서 설치 파일을 받을 수 있습니다.
+
+`main`에 변경이 반영되면 패치 버전을 자동 증가시킵니다. 현재 기준 버전이 `1.7.6`이고 태그가 없으면 첫 릴리스는 `v1.7.7`, 다음은 `v1.7.8`입니다. 세 운영체제의 빌드가 모두 성공한 뒤 해당 커밋에 태그를 만들고, 공통 VSIX와 자동 생성한 변경 내역을 GitHub Release로 배포합니다. `main`에 직접 push한 경우에도 같은 절차가 실행됩니다.
+
+실제 배포 버전은 Git 태그를 기준으로 관리합니다. 빌드 중에만 `package.json`과 lockfile에 배포 버전을 적용하며, 소스의 버전은 최초 기준값으로 유지합니다. 같은 커밋을 재실행하면 기존 태그를 재사용하고, 업로드 실패로 남은 초안은 재시도합니다. 이미 배포한 VSIX는 덮어쓰지 않습니다. 더 최신이거나 서로 갈라진 커밋이 먼저 태그된 경우에는 이전 커밋의 새 릴리스를 차단합니다.
+
+배포 실행은 순차 처리하며, 실패한 작업은 Actions에서 **Re-run all jobs**로 재시도할 수 있습니다. Actions의 **Run workflow**를 `main`에서 실행해도 같은 배포 절차가 적용됩니다. 기본 `GITHUB_TOKEN`을 사용하므로 별도 배포 토큰은 필요하지 않습니다.
 
 엔진의 지원 범위와 빌드는 `engine/README.md`, 통신 계약은 `engine/PROTOCOL.md`를 참고합니다.
 
